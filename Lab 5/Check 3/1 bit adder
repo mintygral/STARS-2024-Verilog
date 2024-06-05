@@ -17,7 +17,7 @@ module top (
 );
 // Code here
 
- fa4 fa4bit(.A(pb[3:0]),.B(pb[7:4]),.Cin(pb[8]),.Cout(right[4]),.S(right[3:0]));
+  fa fa1(.A(pb[0]),.B(pb[1]),.Cin(pb[2]),.Cout(right[1]),.S(right[0]));
 
 endmodule
 
@@ -34,18 +34,28 @@ endmodule
 
 // Add more modules down here...
 
-module fa4 (
-  input logic [3:0] A, B,
-  input logic Cin,
-  output logic [3:0] S,
-  output logic Cout
-);
+// testbench
+`timescale 1ms/10ps
+module tb;
+  logic A, B, Cin, S, Cout;
+  fa fulladder (.A(A), .B(B), .Cin(Cin), .S(S), .Cout(Cout));
 
-  logic Cout0, Cout1, Cout2;
+  initial begin
+    $dumpfile("sim.vcd");
+    $dumpvars(0, tb);
 
-  fa bit40(.A(A[0]),.B(B[0]),.Cin(Cin),.Cout(Cout0),.S(S[0]));
-  fa bit41(.A(A[1]),.B(B[1]),.Cin(Cout0),.Cout(Cout1),.S(S[1]));
-  fa bit42(.A(A[2]),.B(B[2]),.Cin(Cout1),.Cout(Cout2),.S(S[2]));
-  fa bit43(.A(A[3]),.B(B[3]),.Cin(Cout2),.Cout(Cout),.S(S[3]));
+    // for loop to test all possible inputs
+    for (integer i=0; i<=1; i++) begin
+      for (integer j=0; j<=1; j++) begin
+        for (integer k=0; k<=1; k++) begin
+          A = i; B = j; Cin = k;
+          #1;
+          $display("A=%b, B=%b, Cin=%b, Cout=%b, S=%b", A,B,Cin,Cout,S);
+        end
+      end
+    end
 
-endmodule 
+    #1 $finish;
+  end
+
+endmodule
