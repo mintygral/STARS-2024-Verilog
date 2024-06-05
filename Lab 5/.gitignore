@@ -1,0 +1,5 @@
+build/
+*.vcd
+*.fst
+verilog.log
+abc.history
