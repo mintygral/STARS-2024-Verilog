@@ -48,6 +48,8 @@ logic strobe1;
 
 //assign strobe = Q[1];
 // flip-flop 1
+// this takes the input of the OR'd value of the button inputs as data
+// outputs Q
 always_ff @( posedge clk, posedge rst ) begin 
   if(rst) begin
     Q <= 1'b0;
@@ -58,6 +60,8 @@ always_ff @( posedge clk, posedge rst ) begin
 end
 
 //flip-flop 2
+// input is Q (from first flipflop)
+// output is strobe
 always_ff @( posedge clk, posedge rst ) begin 
   if(rst) begin
     strobe <= 1'b0;
