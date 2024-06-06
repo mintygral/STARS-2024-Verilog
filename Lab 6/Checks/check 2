@@ -20,7 +20,7 @@ module top (
   logic [3:0] Cout3bit;
   ssdec displayA(.in(pb[3:0]), .enable(1), .out(ss7[6:0]));
   ssdec displayB(.in(pb[7:4]), .enable(1), .out(ss5[6:0]));
-  //bcdadd addsum(.A(pb[3:0]), .B(pb[7:4]), .Cin(pb[8]), .S(S), .Cout(Cout));
+  bcdadd addsum(.A(pb[3:0]), .B(pb[7:4]), .Cin(pb[8]), .S(S), .Cout(Cout)); //comment out when 'make sim'
   ssdec displayS(.in(S), .enable(1), .out(ss0[6:0]));
   assign Cout3bit = {3'd0, Cout};
   ssdec displayCout(.in(Cout3bit), .enable(1), .out(ss1[6:0]));

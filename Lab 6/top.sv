@@ -15,126 +15,45 @@ module top (
   output logic txclk, rxclk,
   input  logic txready, rxready
 );
-  logic [3:0] S;
-  logic Cout;
-  logic [3:0] Cout3bit;
-  ssdec displayA(.in(pb[3:0]), .enable(1), .out(ss7[6:0]));
-  ssdec displayB(.in(pb[7:4]), .enable(1), .out(ss5[6:0]));
-  bcdadd addsum(.A(pb[3:0]), .B(pb[7:4]), .Cin(pb[8]), .S(S), .Cout(Cout));
-  ssdec displayS(.in(S), .enable(1), .out(ss0[6:0]));
-  assign Cout3bit = {3'd0, Cout};
-  ssdec displayCout(.in(Cout3bit), .enable(1), .out(ss1[6:0]));
+  
+  enc20to5 instantiate(.in(pb[19:0]), .out(right[4:0]), .strobe(red));
 
 endmodule
 
-// 4 bit adder modules from lab 5
-module fa(
-  input logic A, B, Cin,
-  output logic Cout, S
+module enc20to5 (
+  input logic [19:0] in,
+  output logic [4:0] out,
+  output logic strobe
 );
 
-// Code here
-  assign Cout = (Cin && B) | (A && B) | (A && Cin); // Cout
-  assign S = ( ~(A | B) && Cin) | (~(A | Cin) && B) | (~(B | Cin) && A) | ((A && B) && Cin);
-
-endmodule
-
-module fa4 (
-  input logic [3:0] A, B,
-  input logic Cin,
-  output logic [3:0] S,
-  output logic Cout
-);
-
-  logic Cout0, Cout1, Cout2;
-
-  fa bit40(.A(A[0]),.B(B[0]),.Cin(Cin),.Cout(Cout0),.S(S[0]));
-  fa bit41(.A(A[1]),.B(B[1]),.Cin(Cout0),.Cout(Cout1),.S(S[1]));
-  fa bit42(.A(A[2]),.B(B[2]),.Cin(Cout1),.Cout(Cout2),.S(S[2]));
-  fa bit43(.A(A[3]),.B(B[3]),.Cin(Cout2),.Cout(Cout),.S(S[3]));
-
-endmodule 
-
-
-module ssdec(
-  input logic [3:0] in,
-  input logic enable,
-  output logic [6:0]out
-);
-
-always_comb begin
-  out = 7'b0000000;
-  if (enable == 1) begin
-  case({in})
-  4'b0000: begin out = 7'b0111111; end // none 
-  4'b0001: begin out = 7'b0000110; end // one
-  4'b0010: begin out = 7'b1011011; end // two
-  4'b0011: begin out = 7'b1001111; end  // three
-  4'b0100: begin out = 7'b1100110; end  // four
-  4'b0101: begin out = 7'b1101101; end  // five
-  4'b0110: begin out = 7'b1111101; end  // six
-  4'b0111: begin out = 7'b0000111; end  // seven
-  4'b1000: begin out = 7'b1111111; end  // eight
-  4'b1001: begin out = 7'b1100111; end  // nine -- checked!!!
-  4'b1010: begin out = 7'b1110111; end  // A
-  4'b1011: begin out = 7'b1111100; end  // b
-  4'b1100: begin out = 7'b0111001; end  // C 
-  4'b1101: begin out = 7'b1011110; end  // d
-  4'b1110: begin out = 7'b1111001; end  // E
-  4'b1111: begin out = 7'b1110001; end  // F -- checked!!!
-  default: begin out = 7'b0000000; end
-  endcase
-  end
+always @(in) begin
+    out = 0;
+    if (in != 20'b0) begin
+      strobe = 1;
+    end
+    casez (in)
+        20'b1zzzzzzzzzzzzzzzzzzz: out = 5'b10011; // 19
+        20'b01zzzzzzzzzzzzzzzzzz: out = 5'b10010; // 18
+        20'b001zzzzzzzzzzzzzzzzz: out = 5'b10001; // 17
+        20'b0001zzzzzzzzzzzzzzzz: out = 5'b10000; // 16
+        20'b00001zzzzzzzzzzzzzzz: out = 5'b01111; // 15
+        20'b000001zzzzzzzzzzzzzz: out = 5'b01110; // 14
+        20'b0000001zzzzzzzzzzzzz: out = 5'b01101; // 13
+        20'b00000001zzzzzzzzzzzz: out = 5'b01100; // 12
+        20'b000000001zzzzzzzzzzz: out = 5'b01011; // 11
+        20'b0000000001zzzzzzzzzz: out = 5'b01010; // 10
+        20'b00000000001zzzzzzzzz: out = 5'b01001; // 9
+        20'b000000000001zzzzzzzz: out = 5'b01000; // 8
+        20'b0000000000001zzzzzzz: out = 5'b00111; // 7
+        20'b00000000000001zzzzzz: out = 5'b00110; // 6
+        20'b000000000000001zzzzz: out = 5'b00101; // 5
+        20'b0000000000000001zzzz: out = 5'b00100; // 4
+        20'b00000000000000001zzz: out = 5'b00011; // 3
+        20'b000000000000000001zz: out = 5'b00010; // 2
+        20'b0000000000000000001z: out = 5'b00001; // 1
+        20'b00000000000000000001: out = 5'b00000; // 0
+        default: out = 5'b00000; // Default case
+    endcase
 end
 
 endmodule
-
-module fa(
-  input logic A, B, Cin,
-  output logic Cout, S
-);
-
-// Code here
-  assign Cout = (Cin && B) | (A && B) | (A && Cin); // Cout
-  assign S = ( ~(A | B) && Cin) | (~(A | Cin) && B) | (~(B | Cin) && A) | ((A && B) && Cin);
-
-endmodule
-
-// Add more modules down here...
-
-module fa4 (
-  input logic [3:0] A, B,
-  input logic Cin,
-  output logic [3:0] S,
-  output logic Cout
-);
-
-  logic Cout0, Cout1, Cout2;
-
-  fa a10(.A(A[0]),.B(B[0]),.Cin(Cin),.Cout(Cout0),.S(S[0]));
-  fa a11(.A(A[1]),.B(B[1]),.Cin(Cout0),.Cout(Cout1),.S(S[1]));
-  fa a12(.A(A[2]),.B(B[2]),.Cin(Cout1),.Cout(Cout2),.S(S[2]));
-  fa a13(.A(A[3]),.B(B[3]),.Cin(Cout2),.Cout(Cout),.S(S[3]));
-
-endmodule 
-
-module bcdadd (
-  input logic [3:0] A, B,
-  input logic Cin,
-  output logic [3:0] S,
-  output logic Cout );
-  logic carry;
-  fa4 adder(.A(A), .B(B), .S(tempsum), .Cin(Cin), .Cout(carry));
-  logic [3:0] tempsum, tempB; 
-  
-  always_comb begin
-    tempB = 4'b0;
-    if ((carry == 1) | (tempsum > 9)) begin
-    tempB = 4'b0110;
-    end
-  end
-  fa4 result(.A(tempsum), .B(tempB), .S(S), .Cin(1'b0), .Cout());
-  assign Cout = (tempsum > 9) | (carry == 1);
-
-endmodule
-
