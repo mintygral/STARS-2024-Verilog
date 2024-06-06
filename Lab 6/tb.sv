@@ -1,12 +1,11 @@
 // testbench
 `timescale 1ms/10ps
 module tb;
-  logic [3:0] A, B;
-  logic Cin;
-  logic [3:0] S;
-  logic Cout;
+  logic [19:0] in;
+  logic [4:0] out;
+  logic strobe;
 
-  bcdadd addsum(.A(A), .B(B), .Cin(Cin), .S(S), .Cout(Cout));
+  enc20to5 encode(.in(in), .out(out), .strobe(strobe));
 
   initial begin
     $dumpfile("sim.vcd");
