@@ -28,9 +28,6 @@ module enc20to5 (
 
 always @(in) begin
     out = 0;
-    if (in != 20'b0) begin
-      strobe = 1;
-    end
     casez (in)
         20'b1zzzzzzzzzzzzzzzzzzz: out = 5'b10011; // 19
         20'b01zzzzzzzzzzzzzzzzzz: out = 5'b10010; // 18
@@ -52,8 +49,15 @@ always @(in) begin
         20'b000000000000000001zz: out = 5'b00010; // 2
         20'b0000000000000000001z: out = 5'b00001; // 1
         20'b00000000000000000001: out = 5'b00000; // 0
+        20'b00000000000000000000: out = 0; // 0
         default: out = 5'b00000; // Default case
     endcase
+    if (out != 0) begin
+        strobe = 1;
+    end
+    if (out == 0) begin
+      strobe = 0;
+    end
 end
 
 endmodule
