@@ -16,7 +16,7 @@ module top (
   input  logic txready, rxready
 );
   
-  enc20to5 encode(.in(pb[19:0]), .out(right[4:0]), .strobe(red));
+ // enc20to5 encode(.in(pb[19:0]), .out(right[4:0]), .strobe(red));
 
 endmodule
 
