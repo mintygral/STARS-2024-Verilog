@@ -20,41 +20,12 @@ module top (
   logic [3:0] Cout3bit;
   ssdec displayA(.in(pb[3:0]), .enable(1), .out(ss7[6:0]));
   ssdec displayB(.in(pb[7:4]), .enable(1), .out(ss5[6:0]));
-  bcdadd addsum(.A(pb[3:0]), .B(pb[7:4]), .Cin(pb[8]), .S(S), .Cout(Cout));
+  //bcdadd addsum(.A(pb[3:0]), .B(pb[7:4]), .Cin(pb[8]), .S(S), .Cout(Cout));
   ssdec displayS(.in(S), .enable(1), .out(ss0[6:0]));
   assign Cout3bit = {3'd0, Cout};
   ssdec displayCout(.in(Cout3bit), .enable(1), .out(ss1[6:0]));
 
 endmodule
-
-// 4 bit adder modules from lab 5
-module fa(
-  input logic A, B, Cin,
-  output logic Cout, S
-);
-
-// Code here
-  assign Cout = (Cin && B) | (A && B) | (A && Cin); // Cout
-  assign S = ( ~(A | B) && Cin) | (~(A | Cin) && B) | (~(B | Cin) && A) | ((A && B) && Cin);
-
-endmodule
-
-module fa4 (
-  input logic [3:0] A, B,
-  input logic Cin,
-  output logic [3:0] S,
-  output logic Cout
-);
-
-  logic Cout0, Cout1, Cout2;
-
-  fa bit40(.A(A[0]),.B(B[0]),.Cin(Cin),.Cout(Cout0),.S(S[0]));
-  fa bit41(.A(A[1]),.B(B[1]),.Cin(Cout0),.Cout(Cout1),.S(S[1]));
-  fa bit42(.A(A[2]),.B(B[2]),.Cin(Cout1),.Cout(Cout2),.S(S[2]));
-  fa bit43(.A(A[3]),.B(B[3]),.Cin(Cout2),.Cout(Cout),.S(S[3]));
-
-endmodule 
-
 
 module ssdec(
   input logic [3:0] in,
@@ -138,3 +109,32 @@ module bcdadd (
 
 endmodule
 
+// testbench
+`timescale 1ms/10ps
+module tb;
+  logic [3:0] A, B;
+  logic Cin;
+  logic [3:0] S;
+  logic Cout;
+
+  bcdadd addsum(.A(A), .B(B), .Cin(Cin), .S(S), .Cout(Cout));
+
+  initial begin
+    $dumpfile("sim.vcd");
+    $dumpvars(0, tb);
+
+    // for loop to test all possible inputs
+    for (integer i=0; i<=15; i++) begin
+      for (integer j=0; j<=9; j++) begin
+        for (integer k=0; k<=1; k++) begin
+          A = i; B = j; Cin = k;
+          #1;
+          $display("A=%b, B=%b, Cin=%b, Cout=%b, S=%b", A,B,Cin,Cout,S);
+        end
+      end
+    end
+
+    #1 $finish;
+  end
+
+endmodule
