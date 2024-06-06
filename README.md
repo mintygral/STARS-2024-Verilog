@@ -7,4 +7,4 @@ Verilog code for the STARS 2024 Labs
 # Lab 6 | Introduction to combinational logic
 - Seven-segment binary decoder
 - Single-digit BCD adder
-- 20-5 priority encoder
+- 20-to-5 priority encoder
