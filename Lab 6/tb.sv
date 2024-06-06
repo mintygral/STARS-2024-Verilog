@@ -1,63 +1,29 @@
+// testbench
 `timescale 1ms/10ps
-module tb_ssdec;
-logic [3:0] in;
-logic enable;
-logic [6:0]out;
-ssdec s0 (.in(in), .enable(enable), .out(out));
+module tb;
+  logic [3:0] A, B;
+  logic Cin;
+  logic [3:0] S;
+  logic Cout;
 
-function integer ss_to_int(logic [6:0] ss);
-  case(ss)
-    7'b0111111: return 0;
-    // and so on...
-    default: return -1; // if we make a mistake!
-  endcase
-endfunction
+  bcdadd addsum(.A(A), .B(B), .Cin(Cin), .S(S), .Cout(Cout));
 
-initial begin
-  $dumpfile("sim.vcd");
-  $dumpvars(0, tb_ssdec);
-  enable = 1;
-  #10;
-  for (integer i = 0; i < 16; i++) begin
-    in = i[3:0];
-    #10;
-    if (ss_to_int(out) != i)
-      $display("Error: %d != %d", ss_to_int(out), i);
+  initial begin
+    $dumpfile("sim.vcd");
+    $dumpvars(0, tb);
+
+    // for loop to test all possible inputs
+    for (integer i=0; i<=15; i++) begin
+      for (integer j=0; j<=9; j++) begin
+        for (integer k=0; k<=1; k++) begin
+          A = i; B = j; Cin = k;
+          #1;
+          $display("A=%b, B=%b, Cin=%b, Cout=%b, S=%b", A,B,Cin,Cout,S);
+        end
+      end
+    end
+
+    #1 $finish;
   end
-end
 
 endmodule
-
-module ssdec(
-  input logic [3:0] in,
-  input logic enable,
-  output logic [6:0]out
-);
-
-always_comb begin
-  out = 7'b0000000;
-  if (enable == 1) begin
-    case({in})
-    4'b0000: begin out = 7'b0111111; end // none 
-    4'b0001: begin out = 7'b0000110; end // one
-    4'b0010: begin out = 7'b1011011; end // two
-    4'b0011: begin out = 7'b1001111; end  // three
-    4'b0100: begin out = 7'b1100110; end  // four
-    4'b0101: begin out = 7'b1101101; end  // five
-    4'b0110: begin out = 7'b1111101; end  // six
-    4'b0111: begin out = 7'b0000111; end  // seven
-    4'b1000: begin out = 7'b1111111; end  // eight
-    4'b1001: begin out = 7'b1100111; end  // nine -- checked!!!
-    4'b1010: begin out = 7'b1110111; end  // A
-    4'b1011: begin out = 7'b1111100; end  // b
-    4'b1100: begin out = 7'b0111001; end  // C 
-    4'b1101: begin out = 7'b1011110; end  // d
-    4'b1110: begin out = 7'b1111001; end  // E
-    4'b1111: begin out = 7'b1110001; end  // F -- checked!!!
-    default: begin out = 7'b0000000; end
-    endcase
-  end
-end
-
-endmodule
-// // Add more modules down here...
