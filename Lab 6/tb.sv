@@ -10,19 +10,31 @@ module tb;
   initial begin
     $dumpfile("sim.vcd");
     $dumpvars(0, tb);
+    // out = 0;
+    // strobe = 0;
+    in = 20'b0;
+    #10;
+    // for loop to test possible inputs
 
-    // for loop to test all possible inputs
-    for (integer i=0; i<=15; i++) begin
-      for (integer j=0; j<=9; j++) begin
-        for (integer k=0; k<=1; k++) begin
-          A = i; B = j; Cin = k;
-          #1;
-          $display("A=%b, B=%b, Cin=%b, Cout=%b, S=%b", A,B,Cin,Cout,S);
-        end
-      end
+    for (integer i=0; i<=19; i++) begin
+     in[i] = 1;
+      #10;
+      $display("in=%b, out=%b, strobe=%b", in, out, strobe);
     end
 
-    #1 $finish;
-  end
+    // reset to 0
+    // custom cases
+    in = 20'b0;
+    in = 20'b01000000001000000000;
+    $display("in=%b, out=%b, strobe=%b", in, out, strobe);
+
+    in = 20'b00000000010000010000;
+    $display("in=%b, out=%b, strobe=%b", in, out, strobe);
+
+    in = 20'b00000000000000000011;
+    $display("in=%b, out=%b, strobe=%b", in, out, strobe);
+
+    end
+
 
 endmodule
