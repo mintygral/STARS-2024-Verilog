@@ -24,20 +24,29 @@ module tb;
     // custom cases 
     
     in = 20'b0;
-    $display("in=%b, out=%b, strobe=%b", in, out, strobe);
-    in = 20'b01000000001000000000;
-    $display("in=%b, out=%b, strobe=%b", in, out, strobe);
-
-    in = 20'b00000000010000010000;
-    $display("in=%b, out=%b, strobe=%b", in, out, strobe);
-
-    in = 20'b00000000000000000011;
-    $display("in=%b, out=%b, strobe=%b", in, out, strobe);
+    for (integer j=0; j<3; j++) begin
+      in = 20'b0;
+      integer rand1 = $random % 20;
+      integer rand2 = $random % 20;
+      in[rand1] = 1;
+      in[rand2] = 1;
+      $display("in=%b, out=%b, strobe=%b", in, out, strobe);
+    end
     
-    // Output of custom cases
-    // in=01000000001000000000, out=10011, strobe=1 
-    // in=00000000010000010000, out=10011, strobe=1
-    // in=00000000000000000011, out=10011, strobe=1
+    // $display("in=%b, out=%b, strobe=%b", in, out, strobe);
+    // in = 20'b01000000001000000000;
+    // $display("in=%b, out=%b, strobe=%b", in, out, strobe);
+
+    // in = 20'b00000000010000010000;
+    // $display("in=%b, out=%b, strobe=%b", in, out, strobe);
+
+    // in = 20'b00000000000000000011;
+    // $display("in=%b, out=%b, strobe=%b", in, out, strobe);
+    
+    // // Output of custom cases
+    // // in=01000000001000000000, out=10011, strobe=1 
+    // // in=00000000010000010000, out=10011, strobe=1
+    // // in=00000000000000000011, out=10011, strobe=1
     
   end
 
