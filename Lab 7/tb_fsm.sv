@@ -12,7 +12,7 @@ module tb;
 // inputs
 logic strobe;
 logic rst;
-logic [19:0] in;
+logic [16:0] in;
 initial strobe = 0;
 always strobe = #50 ~strobe;
 logic [4:0] keyout;
@@ -20,7 +20,7 @@ logic [4:0] keyout;
 // outputs
 // logic [4:0] keyout;
 state_t current_state;
-logic [31:0] password;
+// logic [31:0] password;
 
 logic [4:0] testdata [];
 
@@ -28,22 +28,45 @@ fsm unlock(.clk(strobe),
         .rst(rst), 
         .keyout(keyout),
         .seq(32'h12345678),
-        .state(current_state),
-        .password(password));
+        .state(current_state));
 initial begin 
     $dumpfile("sim.vcd");
     $dumpvars(0, tb);
     #10;
     rst = 0; 
-    //seq = 32'h12345678;
     keyout = 0;
-    toggle_rst();
+    toggle_rst(); 
+    //Test case 1: fully correct
     #10;
-    testdata = '{5'd8, 5'd7, 5'd6, 5'd5, 5'd4, 5'd3, 5'd2, 5'd1, 5'd19};
-    sendstream(testdata);
+    testdata = '{5'd16, 5'd1, 5'd2, 5'd3, 5'd4, 5'd5, 5'd6, 5'd7, 5'd8};
+
+    // Test case 2: incorrect, does not reset
     #10;
-    testdata = '{5'd8, 5'd7, 5'd6, 5'd5, 5'd4, 5'd3, 5'd2, 5'd1, 5'd19};
+    testdata = '{5'd16, 5'd1, 5'd2, 5'd3, 5'd3, 5'd5, 5'd6, 5'd7, 5'd8};
     sendstream(testdata);
+
+    // Test case 3: incorrect, does reset
+    #10;
+    testdata = '{5'd16, 5'd1, 5'd2, 5'd3, 5'd3, 5'd16, 5'd16, 5'd1, 5'd2};
+    sendstream(testdata);
+    #10 $finish;
+    $display("Simulation finished.");
+
+    // Test case 4: incorrect, starts off with reset, resets again
+    #10;
+    testdata = '{5'd16, 5'd1, 5'd2, 5'd3, 5'd3, 5'd16, 5'd16, 5'd1, 5'd2};
+    sendstream(testdata);
+  
+    // Test case 5: spam reset button (stays at z)
+    #10;
+    testdata = '{5'd16, 5'd16, 5'd16, 5'd16, 5'd16, 5'd16, 5'd16, 5'd16, 5'd16};
+    sendstream(testdata);
+
+    // Test case 5: toggle between init and alarm, and then correct 
+    #10;
+    testdata = '{5'd16, 5'd16, 5'd16, 5'd16, 5'd16, 5'd16, 5'd16, 5'd1, 5'd2};
+    sendstream(testdata);
+
     #10 $finish;
     $display("Simulation finished.");
 end
@@ -62,7 +85,6 @@ task send_key;
         @ (posedge strobe);
         #10;
     end
-
 endtask
 
 task sendstream;
