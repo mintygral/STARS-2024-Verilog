@@ -63,33 +63,4 @@ always @(in) begin
     end
 end
 
-endmodulezzzzzz: out = 5'b01110; // 14
-        20'b0000001zzzzzzzzzzzzz: out = 5'b01101; // 13
-        20'b00000001zzzzzzzzzzzz: out = 5'b01100; // 12
-        20'b000000001zzzzzzzzzzz: out = 5'b01011; // 11
-        20'b0000000001zzzzzzzzzz: out = 5'b01010; // 10
-        20'b00000000001zzzzzzzzz: out = 5'b01001; // 9
-        20'b000000000001zzzzzzzz: out = 5'b01000; // 8
-        20'b0000000000001zzzzzzz: out = 5'b00111; // 7
-        20'b00000000000001zzzzzz: out = 5'b00110; // 6
-        20'b000000000000001zzzzz: out = 5'b00101; // 5
-        20'b0000000000000001zzzz: out = 5'b00100; // 4
-        20'b00000000000000001zzz: out = 5'b00011; // 3
-        20'b000000000000000001zz: out = 5'b00010; // 2
-        20'b0000000000000000001z: out = 5'b00001; // 1
-        20'b00000000000000000001: out = 5'b00000; // 0
-        20'b00000000000000000000: out = 0; // 0
-        default: out = 5'b00000; // Default case
-    endcase
-    if (out != 0) begin
-        strobe = 1;
-    end
-    if (out == 0) begin
-      strobe = 0;
-    end
-    if (out == 0 && in ==  20'b00000000000000000001) begin
-      strobe = 1;
-    end
-end
-
 endmodule

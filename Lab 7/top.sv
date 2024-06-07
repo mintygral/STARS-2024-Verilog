@@ -113,7 +113,7 @@ endmodule
 
 module ssdec(
   input logic [3:0] in,
-  input logic enable,
+  input logic enable, //sss
   output logic [6:0]out
 );
 

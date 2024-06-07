@@ -9,7 +9,7 @@ PROJ    = template
 PINMAP  = pinmap.pcf
 CELLS	= support/cells_map_timing.v support/cells_sim_timing.v
 SRC     = top.sv
-TB	    = tb.sv
+TB	= tb.sv
 ICE     = ice40hx8k.sv
 UART    = support/uart.v support/uart_tx.v support/uart_rx.v
 FILES   = $(ICE) $(SRC) $(UART)
@@ -60,6 +60,7 @@ verify_%: $(SRC) tb_%.sv
 	# run simulation
 	iverilog -g2012 $(CELLS) $(BUILD)/$(PROJ).v tb_$*.sv -o $(BUILD)/$(PROJ)
 	vvp $(BUILD)/$(PROJ)
+	gtkwave $(TRACE)
 
 # source_sim: $(SRC)
 # 	# if build folder doesn't exist, create it
