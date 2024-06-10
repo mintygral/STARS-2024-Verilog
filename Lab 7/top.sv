@@ -130,7 +130,7 @@ module display (
       ALARM: begin
         green = 0;
         red = 1;
-        blue = 1;
+        blue = 0;
         ss[63:56] = 8'b00111001;
         ss[55:48] = 8'b01110111;
         ss[47:40] = 8'b00111000;
