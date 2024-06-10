@@ -30,6 +30,7 @@ fsm unlock(.clk(strobe),
         .seq(32'h12345678),
         .state(current_state),
         .password(password));
+        
 initial begin 
     $dumpfile("sim.vcd");
     $dumpvars(0, tb);

@@ -1,12 +1,14 @@
 `default_nettype none
 // Empty top module
 
+
  typedef enum logic [3:0] {
     LS0 = 0, LS1 = 1, LS2 = 2, LS3 = 3, LS4 = 4, LS5 = 5, LS6 = 6, LS7 = 7,
     OPEN = 8,
     ALARM = 9,
     INIT = 10
   } state_t;
+
 
 module top (
   // I/O ports
@@ -16,26 +18,29 @@ module top (
          ss7, ss6, ss5, ss4, ss3, ss2, ss1, ss0,
   output logic red, green, blue,
 
+
   // UART ports
   output logic [7:0] txdata,
   input  logic [7:0] rxdata,
   output logic txclk, rxclk,
   input  logic txready, rxready
 );
-  
+ 
   logic temp;
   logic [4:0] out;
   logic strobe;
   state_t state;
-  synckey encode(.clk(hz100), 
-                 .rst(reset), 
-                 .in(pb[19:0]), 
-                 .out(out), 
+  synckey encode(.clk(hz100),
+                 .rst(reset),
+                 .in(pb[19:0]),
+                 .out(out),
                  .strobe(strobe),
                  .strobe1(temp));
   assign right[4:0] = out;
 
+
   state_t current_state;
+
 
   // enter password
   logic [31:0] password;
@@ -45,8 +50,8 @@ module top (
                         .in(out),
                         .out(password));
   //  ssdec pw7(.in(password[31:28]), .enable(current_state == INIT), .out(ss7[6:0]));
-  fsm unlock(.clk(strobe), 
-            .rst(reset), 
+  fsm unlock(.clk(strobe),
+            .rst(reset),
             .keyout(out),
             .seq(password),
             .state(current_state));
@@ -54,10 +59,11 @@ module top (
   //assign blue = strobe;
  //ssdec curr_state(.in(current_state), .enable(1), .out(ss0[6:0]));
   logic temp2;
- display displayresults(.state(current_state), .seq(password), .ss({ss7, ss6, ss5, ss4, ss3, ss2, ss1, ss0}), 
+ display displayresults(.state(current_state), .seq(password), .ss({ss7, ss6, ss5, ss4, ss3, ss2, ss1, ss0}),
                         .red(red), .green(green), .blue(blue));
   // assign blue = 1;
 endmodule
+
 
 module sequence_sr (
   input logic clk, rst, en,
@@ -65,16 +71,18 @@ module sequence_sr (
   output logic [31:0] out
 );
 
+
   always_ff @ (posedge clk, posedge rst) begin
     if (rst == 1) begin
         out <= 32'd0;
     end
-    else begin if (en == 1 && in < 16) begin 
+    else begin if (en == 1 && in < 16) begin
       out <= {out[27:0], in[3:0]};
       end
     end
   end
 endmodule
+
 
 module display (
   input logic [3:0] state,
@@ -93,11 +101,13 @@ module display (
   ssdec pw1(.in(seq[7:4]), .enable(state == INIT), .out(ss_temp[14:8]));
   ssdec pw0(.in(seq[3:0]), .enable(state == INIT), .out(ss_temp[6:0]));
 
-  always_comb begin 
+
+  always_comb begin
     green = 0;
     red = 0;
     blue = 0;
     ss[63:0] = 64'd0;
+
 
     // ssdec pw7(.in(seq[31:28]), .enable(state == INIT), .out(ss[62:56]));
     // ssdec pw6(.in(seq[27:24]), .enable(state == INIT), .out(ss[54:48]));
@@ -108,10 +118,10 @@ module display (
     // ssdec pw1(.in(seq[7:4]), .enable(state == INIT), .out(ss[25:19]));
     // ssdec pw0(.in(seq[3:0]), .enable(state == INIT), .out(ss[17:11]));
     case({state})
-      OPEN: begin 
+      OPEN: begin
         green = 1;
         red = 0;
-        blue = 0; 
+        blue = 0;
         ss[63:56] = 8'b00111111; // O
         ss[55:48] = 8'b01110011; // P
         ss[47:40] = 8'b01111001; // E
@@ -125,22 +135,22 @@ module display (
         ss[55:48] = 8'b01110111;
         ss[47:40] = 8'b00111000;
         ss[39:32] = 8'b00111000;
-        
+       
         ss[31:24] = 8'b01100111;
         ss[23:16] = 8'b00000110;
         ss[15:8] = 8'b00000110;  //Call 911
       end
-      INIT: begin 
+      INIT: begin
           blue = 0;
           green = 0;
           red = 0;
           ss = ss_temp;
       end
-      LS0: begin 
-        green = 0; 
-        red = 0; 
+      LS0: begin
+        green = 0;
+        red = 0;
         blue = 1;
-        ss[63] = 1'b1; 
+        ss[63] = 1'b1;
       end
       LS1: begin green = 0; red = 0; blue = 1; ss[55] = 1'b1; end
       LS2: begin green = 0; red = 0; blue = 1; ss[47] = 1'b1; end
@@ -154,9 +164,10 @@ module display (
   end
 endmodule
 
+
 module fsm (
-  input logic clk, rst, 
-  input logic [4:0] keyout, 
+  input logic clk, rst,
+  input logic [4:0] keyout,
   input logic [31:0] seq,
   output state_t state
 );
@@ -169,7 +180,7 @@ module fsm (
       state <= next_state;
     end
   end
-  
+ 
   always_comb begin
     next_state = state;
     case(state)
@@ -180,7 +191,7 @@ module fsm (
       LS1: if (keyout == {1'd0, seq[27:24]}) begin next_state = LS2; end
         else begin next_state = ALARM; end  
       LS2: if (keyout == {1'd0, seq[23:20]}) begin next_state = LS3;end
-        else begin next_state = ALARM; end 
+        else begin next_state = ALARM; end
       LS3: if (keyout == {1'd0, seq[19:16]}) begin next_state = LS4;end
         else begin next_state = ALARM; end  
       LS4: if (keyout == {1'd0, seq[15:12]}) begin next_state = LS5;end
@@ -196,8 +207,9 @@ module fsm (
       ALARM: begin next_state = ALARM; end
       default: next_state = INIT;
     endcase
-  end 
+  end
 endmodule
+
 
 // encoder from the last lab
 module synckey (
@@ -211,11 +223,13 @@ module synckey (
   //logic strobe1;
 
 
+
+
   //assign strobe = Q[1];
   // flip-flop 1
   // this takes the input of the OR'd value of the button inputs as data
   // outputs Q
-  always_ff @( posedge clk, posedge rst ) begin 
+  always_ff @( posedge clk, posedge rst ) begin
     if(rst) begin
       Q <= 1'b0;
     end
@@ -224,10 +238,11 @@ module synckey (
     end
   end
 
+
   //flip-flop 2
   // input is Q (from first flipflop)
   // output is strobe
-  always_ff @( posedge clk, posedge rst ) begin 
+  always_ff @( posedge clk, posedge rst ) begin
     if(rst) begin
       strobe <= 1'b0;
     end
@@ -235,6 +250,8 @@ module synckey (
       strobe <= Q;
     end
   end
+
+
 
 
   always @(in) begin
@@ -276,17 +293,19 @@ module synckey (
   end
 endmodule
 
+
 module ssdec(
   input logic [3:0] in,
   input logic enable, //sss
   output logic [6:0]out
 );
 
+
 always_comb begin
   out = 7'b0000000;
   if (enable == 1) begin
   case({in})
-  4'b0000: begin out = 7'b0111111; end // none 
+  4'b0000: begin out = 7'b0111111; end // none
   4'b0001: begin out = 7'b0000110; end // one
   4'b0010: begin out = 7'b1011011; end // two
   4'b0011: begin out = 7'b1001111; end  // three
@@ -298,7 +317,7 @@ always_comb begin
   4'b1001: begin out = 7'b1100111; end  // nine -- checked!!!
   4'b1010: begin out = 7'b1110111; end  // A
   4'b1011: begin out = 7'b1111100; end  // b
-  4'b1100: begin out = 7'b0111001; end  // C 
+  4'b1100: begin out = 7'b0111001; end  // C
   4'b1101: begin out = 7'b1011110; end  // d
   4'b1110: begin out = 7'b1111001; end  // E
   4'b1111: begin out = 7'b1110001; end  // F -- checked!!!
@@ -307,4 +326,6 @@ always_comb begin
   end
 end
 
+
 endmodule
+
