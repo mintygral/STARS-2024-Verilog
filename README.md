@@ -8,3 +8,7 @@ Verilog code for the STARS 2024 Labs
 - Seven-segment binary decoder
 - Single-digit BCD adder
 - 20-to-5 priority encoder
+# Lab 7 | Design and verification of sequential logic in SystemVerilog
+- Encoder with synchronized strobe
+- Finite state machine
+- Digital lock
