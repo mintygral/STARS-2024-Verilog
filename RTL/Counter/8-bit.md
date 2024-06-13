@@ -2,7 +2,7 @@
 
 - ### 0: Power on and Reset
 
-  ![Test 0: Power on and Reset](waveforms/counter_8/8-bit-counter total waveform.png)
+  ![Test 0: Power on and Reset]([waveforms/counter_8/8-bit-counter total waveform.png](https://github.com/mintygral/STARS-2024-Verilog/blob/main/RTL/Counter/waveforms/counter_8/8-bit-counter%20total%20waveform.png))
 
 - ### 1: Continuous Counting
   
