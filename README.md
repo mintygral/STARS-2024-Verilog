@@ -12,3 +12,6 @@ Verilog code for the STARS 2024 Labs
 - Encoder with synchronized strobe
 - Finite state machine
 - Digital lock
+### Counter
+- Flexible n-bit counter and testbench
+- 8-bit counter and testbench
