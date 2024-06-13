@@ -2,7 +2,7 @@
 
 - ### 0: Power on and Reset
 
-  ![Test 0: Power on and Reset](waveforms/counter_8/8-bit-counter total waveform.pngg)
+  ![Test 0: Power on and Reset](waveforms/counter_8/8-bit-counter total waveform.png)
 
 - ### 1: Continuous Counting
   
