@@ -1,5 +1,5 @@
 # Tests for N-bit flexible counter
-![Test 0: Power on and Reset](n-bit-counter-waveform.png)
+![Test 0: Power on and Reset](waveforms/counter/n-bit-counter-waveform.png)
 
 - ### 0: Power on and reset
 This was the default test case given in the testbench. It checks if outputs are reset or not when nrst is reset.
