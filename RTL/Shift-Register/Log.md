@@ -1,4 +1,4 @@
-# Log/Results
+# Log
 
 ### RTL Diagram
 ![sr_rtl](imgs/sr_rtl.png)
