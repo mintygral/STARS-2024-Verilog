@@ -155,10 +155,11 @@ module tb_shift_reg ();
     #(0.1);
 
     // ************************************************************************
-    // Test Case 0: Power-on Reset of the DUT
+    // Test Case 1: Power-on Reset of the DUT
     // ************************************************************************
     tb_test_num  = tb_test_num + 1;
     tb_test_case = "Power-on-Reset";
+    $display("Test case: %b: %s", tb_test_num, tb_test_case);
     // Note: Do not use reset task during reset test case since we need to specifically check behavior during reset
     // Wait some time before applying test case stimulus
     #(0.1);
@@ -186,10 +187,11 @@ module tb_shift_reg ();
     check_output("after reset was released");
 
     // ************************************************************************
-    // Test Case 1: Check HOLD Mode
+    // Test Case 2: Check HOLD Mode
     // ************************************************************************
     tb_test_num  = tb_test_num + 1;
     tb_test_case = "Check HOLD Mode";
+    $display("Test case: %b: %s", tb_test_num, tb_test_case);
     // Start out with inactive value and reset the DUT to isolate from prior tests
     inactivate_signals();
     reset_dut();
@@ -213,10 +215,11 @@ module tb_shift_reg ();
     check_output("after to load data under mode 0");
 
     // ************************************************************************
-    // Test Case 2: Check LEFT Mode with 8'hAA bit stream
+    // Test Case 3: Check LEFT Mode with 8'hAA bit stream
     // ************************************************************************
     tb_test_num  = tb_test_num + 1;
     tb_test_case = "Check LEFT Mode with 8'hAA bit stream";
+    $display("Test case: %b: %s", tb_test_num, tb_test_case);
     // Start out with inactive value and reset the DUT to isolate from prior tests
     inactivate_signals();
     reset_dut();
@@ -225,8 +228,8 @@ module tb_shift_reg ();
     tb_set_mode = 2'd2;
 
     // Define the test data stream for this test case
-    tb_test_data = {1'b1, 1'b0, 1'b1, 1'b0, 1'b1, 1'b0, 1'b1, 1'b0};
-
+    tb_test_data = {1'b1, 1'b0, 1'b1, 1'b0, 1'b1, 1'b0, 1'b1, 1'b0}; //170
+                  // par_i
     // Define the expected result
     tb_expected_output = 8'hAA;
 
@@ -239,6 +242,30 @@ module tb_shift_reg ();
     ////////////////////////////////
     // ADD MORE TEST CASES HERE!! //
     ////////////////////////////////
+
+    // ************************************************************************
+    // Test Case 4: Check RIGHT Mode with 8'hAA bit stream
+    // ************************************************************************
+    tb_test_num  = tb_test_num + 1;
+    tb_test_case = "Check RIGHT Mode with 8'hAA bit stream";
+    // Start out with inactive value and reset the DUT to isolate from prior tests
+    inactivate_signals();
+    reset_dut();
+
+    // Set mode
+    tb_set_mode = 2'b11;
+
+    // Define the test data stream for this test case
+    tb_test_data = {1'b1, 1'b0, 1'b1, 1'b0, 1'b1, 1'b0, 1'b1, 1'b0};
+
+    // Define the expected result
+    tb_expected_output = 8'b01010101;
+
+    // Send bit stream
+    send_stream(tb_test_data);
+
+    // Check the result of the full stream
+    check_output("after right shifting with 8'hAA bit stream");
 
     $display("Simulation complete");
     $finish;

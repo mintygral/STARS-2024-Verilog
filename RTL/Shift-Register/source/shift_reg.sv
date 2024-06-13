@@ -22,7 +22,7 @@ module shift_reg
     always_comb begin : assignP
         // logic [7:0] next_P;
         case (mode_i)
-            2'd0: next_P = P;
+            2'b00: next_P = P;
             2'b11: next_P = {D, P[7:1]}; // Shift RIGHT
             2'b10: next_P = {P[6:0], D}; // Shift LEFT
             2'b01: next_P = par_i; // LOAD
