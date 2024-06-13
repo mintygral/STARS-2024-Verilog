@@ -1,0 +1,7 @@
+sim_build/*
+*.key
+*.log
+*.vcd
+*.vpd
+DVEfiles/
+.restartSimSession.tcl.old
