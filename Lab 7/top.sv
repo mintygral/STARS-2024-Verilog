@@ -38,28 +38,27 @@ module top (
                  .strobe1(temp));
   assign right[4:0] = out;
 
-
   state_t current_state;
 
-
-  // enter password
+  // enter and store the password
   logic [31:0] password;
   sequence_sr entercode(.clk(strobe),
                         .rst(reset),
                         .en(current_state == INIT),
                         .in(out),
                         .out(password));
-  //  ssdec pw7(.in(password[31:28]), .enable(current_state == INIT), .out(ss7[6:0]));
+  
+  // use password for fsm
   fsm unlock(.clk(strobe),
             .rst(reset),
             .keyout(out),
             .seq(password),
             .state(current_state));
   assign left[3:0] = current_state;
-  //assign blue = strobe;
- //ssdec curr_state(.in(current_state), .enable(1), .out(ss0[6:0]));
+
+  // display changes based on the state we are in
   logic temp2;
- display displayresults(.state(current_state), .seq(password), .ss({ss7, ss6, ss5, ss4, ss3, ss2, ss1, ss0}),
+  display displayresults(.state(current_state), .seq(password), .ss({ss7, ss6, ss5, ss4, ss3, ss2, ss1, ss0}),
                         .red(red), .green(green), .blue(blue));
   // assign blue = 1;
 endmodule
@@ -70,7 +69,6 @@ module sequence_sr (
   input logic [4:0] in,
   output logic [31:0] out
 );
-
 
   always_ff @ (posedge clk, posedge rst) begin
     if (rst == 1) begin
@@ -90,7 +88,8 @@ module display (
   output logic [63:0] ss,
   output logic red, green, blue
 );
-  //open state
+  // open state
+  // assign temp variable instead of ss for now
   logic [63:0] ss_temp;
   ssdec pw7(.in(seq[31:28]), .enable(state == INIT), .out(ss_temp[62:56]));
   ssdec pw6(.in(seq[27:24]), .enable(state == INIT), .out(ss_temp[54:48]));
@@ -101,22 +100,12 @@ module display (
   ssdec pw1(.in(seq[7:4]), .enable(state == INIT), .out(ss_temp[14:8]));
   ssdec pw0(.in(seq[3:0]), .enable(state == INIT), .out(ss_temp[6:0]));
 
-
   always_comb begin
     green = 0;
     red = 0;
     blue = 0;
     ss[63:0] = 64'd0;
 
-
-    // ssdec pw7(.in(seq[31:28]), .enable(state == INIT), .out(ss[62:56]));
-    // ssdec pw6(.in(seq[27:24]), .enable(state == INIT), .out(ss[54:48]));
-    // ssdec pw5(.in(seq[23:20]), .enable(state == INIT), .out(ss[46:40]));
-    // ssdec pw4(.in(seq[19:16]), .enable(state == INIT), .out(ss[38:32]));
-    // ssdec pw3(.in(seq[15:12]), .enable(state == INIT), .out(ss[30:24]));
-    // ssdec pw2(.in(seq[11:8]), .enable(state == INIT), .out(ss[33:27]));
-    // ssdec pw1(.in(seq[7:4]), .enable(state == INIT), .out(ss[25:19]));
-    // ssdec pw0(.in(seq[3:0]), .enable(state == INIT), .out(ss[17:11]));
     case({state})
       OPEN: begin
         green = 1;
@@ -144,7 +133,7 @@ module display (
           blue = 0;
           green = 0;
           red = 0;
-          ss = ss_temp;
+          ss = ss_temp; // in init state the password will display
       end
       LS0: begin
         green = 0;
@@ -222,9 +211,6 @@ module synckey (
   logic Q;
   //logic strobe1;
 
-
-
-
   //assign strobe = Q[1];
   // flip-flop 1
   // this takes the input of the OR'd value of the button inputs as data
@@ -238,7 +224,6 @@ module synckey (
     end
   end
 
-
   //flip-flop 2
   // input is Q (from first flipflop)
   // output is strobe
@@ -250,9 +235,6 @@ module synckey (
       strobe <= Q;
     end
   end
-
-
-
 
   always @(in) begin
       out = 0;
@@ -295,37 +277,36 @@ endmodule
 
 
 module ssdec(
-  input logic [3:0] in,
-  input logic enable, //sss
-  output logic [6:0]out
-);
+    input logic [3:0] in,
+    input logic enable, //sss
+    output logic [6:0]out
+  );
 
 
-always_comb begin
-  out = 7'b0000000;
-  if (enable == 1) begin
-  case({in})
-  4'b0000: begin out = 7'b0111111; end // none
-  4'b0001: begin out = 7'b0000110; end // one
-  4'b0010: begin out = 7'b1011011; end // two
-  4'b0011: begin out = 7'b1001111; end  // three
-  4'b0100: begin out = 7'b1100110; end  // four
-  4'b0101: begin out = 7'b1101101; end  // five
-  4'b0110: begin out = 7'b1111101; end  // six
-  4'b0111: begin out = 7'b0000111; end  // seven
-  4'b1000: begin out = 7'b1111111; end  // eight
-  4'b1001: begin out = 7'b1100111; end  // nine -- checked!!!
-  4'b1010: begin out = 7'b1110111; end  // A
-  4'b1011: begin out = 7'b1111100; end  // b
-  4'b1100: begin out = 7'b0111001; end  // C
-  4'b1101: begin out = 7'b1011110; end  // d
-  4'b1110: begin out = 7'b1111001; end  // E
-  4'b1111: begin out = 7'b1110001; end  // F -- checked!!!
-  default: begin out = 7'b0000000; end
-  endcase
+  always_comb begin
+    out = 7'b0000000;
+    if (enable == 1) begin
+    case({in})
+    4'b0000: begin out = 7'b0111111; end // none
+    4'b0001: begin out = 7'b0000110; end // one
+    4'b0010: begin out = 7'b1011011; end // two
+    4'b0011: begin out = 7'b1001111; end  // three
+    4'b0100: begin out = 7'b1100110; end  // four
+    4'b0101: begin out = 7'b1101101; end  // five
+    4'b0110: begin out = 7'b1111101; end  // six
+    4'b0111: begin out = 7'b0000111; end  // seven
+    4'b1000: begin out = 7'b1111111; end  // eight
+    4'b1001: begin out = 7'b1100111; end  // nine -- checked!!!
+    4'b1010: begin out = 7'b1110111; end  // A
+    4'b1011: begin out = 7'b1111100; end  // b
+    4'b1100: begin out = 7'b0111001; end  // C
+    4'b1101: begin out = 7'b1011110; end  // d
+    4'b1110: begin out = 7'b1111001; end  // E
+    4'b1111: begin out = 7'b1110001; end  // F -- checked!!!
+    default: begin out = 7'b0000000; end
+    endcase
+    end
   end
-end
-
 
 endmodule
 
