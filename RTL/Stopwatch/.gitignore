@@ -1,0 +1,8 @@
+sim_build/*
+ice40/build/*
+*.key
+*.log
+*.vcd
+*.vpd
+DVEfiles/
+.restartSimSession.tcl.old
