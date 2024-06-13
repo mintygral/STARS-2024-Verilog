@@ -248,6 +248,7 @@ module tb_shift_reg ();
     // ************************************************************************
     tb_test_num  = tb_test_num + 1;
     tb_test_case = "Check RIGHT Mode with 8'hAA bit stream";
+    $display("Test case: %b: %s", tb_test_num, tb_test_case);
     // Start out with inactive value and reset the DUT to isolate from prior tests
     inactivate_signals();
     reset_dut();
