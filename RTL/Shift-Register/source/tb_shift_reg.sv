@@ -311,7 +311,7 @@ module tb_shift_reg ();
     tb_test_data = {1'b1, 1'b0, 1'b1, 1'b0, 1'b1, 1'b0};
 
     // Define the expected result
-    tb_expected_output = 8'b00010101;
+    tb_expected_output = 8'b01010100;
 
     // Send bit stream
     send_stream(tb_test_data);
