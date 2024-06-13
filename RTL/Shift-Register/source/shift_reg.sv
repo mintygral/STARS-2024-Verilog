@@ -18,8 +18,15 @@ module shift_reg
     // Outputs
     output logic [7:0] P // parallel output of the shift register
 );
-
-    // Write code here!
+    logic [7:0] next_P;
+    always_comb begin : assignP
+        case (mode_i)
+            00: next_P = P;
+            01: next_P = {D, P[7:1]};
+            10: next_P = {P[6:0], D};
+            11: next_P = par_i;
+            default: 
+        endcase
+    end
     
 endmodule
-//ls
