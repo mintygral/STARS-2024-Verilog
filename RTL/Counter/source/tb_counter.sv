@@ -23,7 +23,7 @@ module tb_counter();
     string tb_test_name; 
 
     // DUT Inputs
-    logic tb_clk;
+    logic tb_clk; 
     logic tb_nrst;
     logic tb_enable;
     logic tb_clear;
