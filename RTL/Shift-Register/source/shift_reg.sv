@@ -20,13 +20,18 @@ module shift_reg
 );
     logic [7:0] next_P;
     always_comb begin : assignP
+        // logic [7:0] next_P;
         case (mode_i)
-            00: next_P = P;
-            01: next_P = {D, P[7:1]};
-            10: next_P = {P[6:0], D};
-            11: next_P = par_i;
-            default: 
+            2'b00: next_P = P;
+            2'b01: next_P = {D, P[7:1]};
+            2'b10: next_P = {P[6:0], D};
+            2'b11: next_P = par_i;
+            default: next_P = 8'b0;
         endcase
     end
     
+    always_ff @(posedge clk) begin
+        if (!nrst) begin P <= 0; end 
+        else begin P <= next_P; end
+    end
 endmodule
