@@ -22,6 +22,7 @@ module top (
   output logic txclk, rxclk,
   input  logic txready, rxready
 );
+
   state_t out;
   logic strobe;
   logic strobe1 = (current_mode == RUNNING);

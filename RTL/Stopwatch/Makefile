@@ -9,7 +9,7 @@ export LD_LIBRARY_PATH := /home/shay/a/ece270/lib:$(LD_LIBRARY_PATH)
 
 # Specify the name of the top level file
 # (do not include the source folder in the name)
-TOP_FILE		:=  
+TOP_FILE		:=  stop_watch.sv
 
 # Specify the name of component or sub-module files
 # (do not include the source folder in the name)
