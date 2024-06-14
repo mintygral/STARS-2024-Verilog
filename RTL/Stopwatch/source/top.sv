@@ -30,6 +30,18 @@ module top (
   state_t current_mode;
   fsm changemode (.clk(strobe), .rst(reset), .keyout(out), .state(current_mode));
   assign right[2:0] = current_mode; // check that states are switching properly --- checked!!!
+
+  logic [3:0] max;
+  assign max = 4'b1001;
+  logic [3:0] count;
+  logic at_max;
+  // instantiate counter to begin when the mode is running
+  counter #(.N(4)) counter8 (.clk(hz100), .nrst(!reset), .enable(current_mode == RUNNING), .clear(current_mode == CLEAR), .wrap(1), 
+          .max(max), .count(count), .at_max(at_max));
+  // display count (set max to 9 for now to limit to one segment display)
+
+  logic funyun = ((current_mode == RUNNING) | (current_mode == IDLE));
+  ssdec displaycount(.in(count), .enable(1), .out(ss0[6:0]));
 endmodule
 
 // encoder
@@ -118,4 +130,76 @@ module fsm (
     end
   endmodule
 
+/*
+Module name: counter
+Description: Counts to a flexible amount. Has strobe at max and controls for wrapping, enable, and clear.
+*/
+module counter
+  #(
+      parameter N = 4 // Size of counter (i.e. number of bits at the output). Maximum count is 2^N - 1
+  )
+  (
+      input logic clk,            // Clock
+      input logic nrst,           // Asynchronous active low reset
+      input logic enable,         // Enable, when enable == 1, counter++; else counter = counter
+      input logic clear,          // Synchronous active high clear 
+      input logic wrap,           // 0: at_max = 1, next_count == 0;  1: at_max = 1, count holds at max 
+      input logic [N - 1:0] max,  // Max number of count (inclusive)
 
+      output logic [N - 1:0] count,   // Current count
+      output logic at_max         // 1 when counter is at max, otherwise 0
+  );
+
+      logic [N - 1:0] next_count;
+
+      always_comb begin
+          // set default assignments to avoid a latch
+          next_count = count;
+          at_max = (count == max);
+
+          if (clear) begin // clear always takes precedence
+              next_count = 0;
+          end
+          else if (enable) begin // else go to enable
+              if (at_max) begin
+                  if (wrap) begin next_count = 0; end // reset 
+                  else begin next_count = count; end // hold
+              end 
+              
+              else begin next_count = count + 1; end // else increment
+          end
+      end
+
+      //always_ff block to handle the clk and nrst
+      always_ff @(posedge clk) begin
+          if (!nrst) begin count <= 0; end 
+          else begin count <= next_count; end
+      end
+  endmodule
+
+module ssdec(
+    input logic [3:0] in,
+    input logic enable, //sss
+    output logic [6:0]out
+  );
+
+  always_comb begin : displaynum
+    out = 7'b0000000;
+    if (enable == 1) begin 
+      case(in) 
+        4'b0000: begin out = 7'b0111111; end // none
+        4'b0001: begin out = 7'b0000110; end // one
+        4'b0010: begin out = 7'b1011011; end // two
+        4'b0011: begin out = 7'b1001111; end  // three
+        4'b0100: begin out = 7'b1100110; end  // four
+        4'b0101: begin out = 7'b1101101; end  // five
+        4'b0110: begin out = 7'b1111101; end  // six
+        4'b0111: begin out = 7'b0000111; end  // seven
+        4'b1000: begin out = 7'b1111111; end  // eight
+        4'b1001: begin out = 7'b1100111; end  // nine -- checked!!!
+        default: out = 7'b0111111;
+      endcase
+    end
+  end
+
+endmodule
