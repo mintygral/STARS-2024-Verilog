@@ -31,15 +31,14 @@ module top (
   // fsm will change the mode based on the input from synckey
   state_t current_mode;
   fsm changemode (.clk(strobe), .rst(reset), .keyout(out), .state(current_mode));
-  assign right[2:0] = current_mode; // check that states are switching properly --- checked!!!
+  assign left[2:0] = current_mode; // check that states are switching properly --- checked!!!
   
   // divide hz100 by 100 to get output of 1x/second
   logic clksecond;
   logic [99:0] clkmax;
   assign clkmax = 100;
   logic pulse;
-  clock_divider #(.N(100)) divideby100 (.clk(hz100), .rst(reset), .max(clkmax),
-                .pulse(pulse));
+  clock_divider #(.N(100)) divideby100 (.clk(hz100), .rst(reset), .max(clkmax), .pulse(pulse));
 
   logic [3:0] max;
   assign max = 4'b1001;
@@ -48,10 +47,11 @@ module top (
   // instantiate counter to begin when the mode is running
   counter #(.N(4)) counter8 (.clk(pulse), .nrst(!reset), .enable(current_mode == RUNNING), .clear(current_mode == CLEAR), .wrap(1), 
           .max(max), .count(count), .at_max(at_max));
+  assign right[3:0] = count; // display number in binary
   
   // display count (set max to 9 for now to limit to one segment display)
-  logic [55:0] all_displays;
-  assign all_displays = {ss7[6:0], ss6[6:0], ss5[6:0], ss4[6:0], ss3[6:0], ss2[6:0], ss1[6:0], ss0[6:0]};
+  // logic [55:0] all_displays;
+  // assign all_displays = {ss7[6:0], ss6[6:0], ss5[6:0], ss4[6:0], ss3[6:0], ss2[6:0], ss1[6:0], ss0[6:0]};
   ssdec displaycount(.in(count), .enable(1), .out(ss0[6:0]));
 endmodule
 
