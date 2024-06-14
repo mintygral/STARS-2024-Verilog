@@ -50,13 +50,9 @@ module top (
   counter #(.N(5)) counter8 (.clk(pulse), .nrst(!reset), .enable(current_mode == RUNNING), .clear(current_mode == CLEAR), .wrap(1), 
           .max(max), .count(count), .at_max(at_max));
   assign right[4:0] = count; // display number in binary
-  
-  // this MAY be used in order to display on all the displays
-  // logic [55:0] all_displays;
-  // assign all_displays = {ss7[6:0], ss6[6:0], ss5[6:0], ss4[6:0], ss3[6:0], ss2[6:0], ss1[6:0], ss0[6:0]};
 
-  // display count (set max to 9 for now to limit to one segment display)
-  ssdec displaycount(.in(count), .enable(1), .out(ss0[6:0]));
+  // display count
+  ssdec displayones(.in(count), .enable(1), .out(ss0[6:0]));
   ssdec2 displaytens(.in(count), .enable(1), .out(ss1[6:0]));
 endmodule
 
