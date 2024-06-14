@@ -24,7 +24,8 @@ module top (
 );
   state_t out;
   logic strobe;
-  logic strobe1;
+  logic strobe1 = (current_mode == RUNNING);
+  assign blue = strobe1; // blue strobe lights up when counter is running
   // allow synchronizer/encoder in order to be able to change states
   synckey encode (.clk(hz100), .rst(reset), .in(pb[2:0]), .out(out), .strobe(strobe), .strobe1(strobe1));
 
@@ -40,19 +41,22 @@ module top (
   logic pulse;
   clock_divider #(.N(100)) divideby100 (.clk(hz100), .rst(reset), .max(clkmax), .pulse(pulse));
 
-  logic [3:0] max;
-  assign max = 4'b1001;
-  logic [3:0] count;
+  logic [4:0] max;
+  assign max = 5'b11111;
+  logic [4:0] count;
   logic at_max;
   // instantiate counter to begin when the mode is running
-  counter #(.N(4)) counter8 (.clk(pulse), .nrst(!reset), .enable(current_mode == RUNNING), .clear(current_mode == CLEAR), .wrap(1), 
+  counter #(.N(5)) counter8 (.clk(pulse), .nrst(!reset), .enable(current_mode == RUNNING), .clear(current_mode == CLEAR), .wrap(1), 
           .max(max), .count(count), .at_max(at_max));
-  assign right[3:0] = count; // display number in binary
+  assign right[4:0] = count; // display number in binary
   
-  // display count (set max to 9 for now to limit to one segment display)
+  // this MAY be used in order to display on all the displays
   // logic [55:0] all_displays;
   // assign all_displays = {ss7[6:0], ss6[6:0], ss5[6:0], ss4[6:0], ss3[6:0], ss2[6:0], ss1[6:0], ss0[6:0]};
+
+  // display count (set max to 9 for now to limit to one segment display)
   ssdec displaycount(.in(count), .enable(1), .out(ss0[6:0]));
+  ssdec2 displaytens(.in(count), .enable(1), .out(ss1[6:0]));
 endmodule
 
 // encoder
@@ -189,8 +193,8 @@ module counter
   endmodule
 
 module ssdec(
-    input logic [3:0] in,
-    input logic enable, //sss
+    input logic [4:0] in,
+    input logic enable,
     output logic [6:0]out
   );
 
@@ -198,16 +202,16 @@ module ssdec(
     out = 7'b0000000;
     if (enable == 1) begin 
       case(in) 
-        4'b0000: begin out = 7'b0111111; end // none
-        4'b0001: begin out = 7'b0000110; end // one
-        4'b0010: begin out = 7'b1011011; end // two
-        4'b0011: begin out = 7'b1001111; end  // three
-        4'b0100: begin out = 7'b1100110; end  // four
-        4'b0101: begin out = 7'b1101101; end  // five
-        4'b0110: begin out = 7'b1111101; end  // six
-        4'b0111: begin out = 7'b0000111; end  // seven
-        4'b1000: begin out = 7'b1111111; end  // eight
-        4'b1001: begin out = 7'b1100111; end  // nine -- checked!!!
+        5'b00000: begin out = 7'b0111111; end // none
+        5'b00001: begin out = 7'b0000110; end // one
+        5'b00010: begin out = 7'b1011011; end // two
+        5'b00011: begin out = 7'b1001111; end  // three
+        5'b00100: begin out = 7'b1100110; end  // four
+        5'b00101: begin out = 7'b1101101; end  // five
+        5'b00110: begin out = 7'b1111101; end  // six
+        5'b00111: begin out = 7'b0000111; end  // seven
+        5'b01000: begin out = 7'b1111111; end  // eight
+        5'b01001: begin out = 7'b1100111; end  // nine -- checked!!!
         default: out = 7'b0111111;
       endcase
     end
@@ -215,6 +219,33 @@ module ssdec(
 
 endmodule
 
+module ssdec2(
+    input logic [4:0] in,
+    input logic enable,
+    output logic [6:0]out
+  );
+
+  always_comb begin : display_tens
+    out = 7'b0000000;
+    if (enable == 1) begin 
+      if (in < 10) begin out = 7'b0111111; end // none
+      if ((in == 10) | ((in > 10) && (in < 20))) begin out = 7'b0000110; end // one
+      if ((in == 10) | ((in > 10) && (in < 20))) begin out = 7'b0000110; end // one
+      if ((in == 20) | ((in > 20) && (in < 30))) begin out = 7'b1011011; end // two
+      if ((in == 30) | (in > 30)) begin out = 7'b1001111; end // two
+      // case(in) 
+      //   5'b00000: begin out = 7'b0111111; end // none
+      //   (in > 10 && in < 20): begin out = 7'b0000110; end // one
+      //   5'b011zz: begin out = 7'b0000110; end // one
+      //   5'b10zzz: begin out = 7'b0000110; end // one
+      //   5'b101zz: begin out = 7'b1011011; end // two
+      //   5'b1111z: begin out = 7'b1001111; end  // three
+      //   default: out = 7'b0111111;
+      // endcase
+    end
+  end
+
+endmodule
 
 module clock_divider 
   #(
