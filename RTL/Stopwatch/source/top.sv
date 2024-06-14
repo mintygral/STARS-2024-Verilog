@@ -24,9 +24,11 @@ module top (
 );
   state_t out;
   logic strobe;
+  logic strobe1;
   // allow synchronizer/encoder in order to be able to change states
-  synckey encode (.clk(hz100), .rst(reset), .in(pb[2:0]), .out(out), .strobe(strobe), .strobe1(blue));
+  synckey encode (.clk(hz100), .rst(reset), .in(pb[2:0]), .out(out), .strobe(strobe), .strobe1(strobe1));
 
+  // fsm will change the mode based on the input from synckey
   state_t current_mode;
   fsm changemode (.clk(strobe), .rst(reset), .keyout(out), .state(current_mode));
   assign right[2:0] = current_mode; // check that states are switching properly --- checked!!!
@@ -48,6 +50,8 @@ module top (
           .max(max), .count(count), .at_max(at_max));
   
   // display count (set max to 9 for now to limit to one segment display)
+  logic [55:0] all_displays;
+  assign all_displays = {ss7[6:0], ss6[6:0], ss5[6:0], ss4[6:0], ss3[6:0], ss2[6:0], ss1[6:0], ss0[6:0]};
   ssdec displaycount(.in(count), .enable(1), .out(ss0[6:0]));
 endmodule
 
