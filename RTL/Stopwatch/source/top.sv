@@ -30,17 +30,24 @@ module top (
   state_t current_mode;
   fsm changemode (.clk(strobe), .rst(reset), .keyout(out), .state(current_mode));
   assign right[2:0] = current_mode; // check that states are switching properly --- checked!!!
+  
+  // divide hz100 by 100 to get output of 1x/second
+  logic clksecond;
+  logic [99:0] clkmax;
+  assign clkmax = 100;
+  logic pulse;
+  clock_divider #(.N(100)) divideby100 (.clk(hz100), .rst(reset), .max(clkmax),
+                .pulse(pulse));
 
   logic [3:0] max;
   assign max = 4'b1001;
   logic [3:0] count;
   logic at_max;
   // instantiate counter to begin when the mode is running
-  counter #(.N(4)) counter8 (.clk(hz100), .nrst(!reset), .enable(current_mode == RUNNING), .clear(current_mode == CLEAR), .wrap(1), 
+  counter #(.N(4)) counter8 (.clk(pulse), .nrst(!reset), .enable(current_mode == RUNNING), .clear(current_mode == CLEAR), .wrap(1), 
           .max(max), .count(count), .at_max(at_max));
+  
   // display count (set max to 9 for now to limit to one segment display)
-
-  logic funyun = ((current_mode == RUNNING) | (current_mode == IDLE));
   ssdec displaycount(.in(count), .enable(1), .out(ss0[6:0]));
 endmodule
 
@@ -123,8 +130,8 @@ module fsm (
       next_state = state;
       case(state)
       IDLE: if (keyout == 3'b001) begin next_state = RUNNING; end else begin next_state = IDLE; end
-      RUNNING: if (keyout == 3'b010) begin next_state = CLEAR; end else begin next_state = RUNNING; end
-      CLEAR: if (keyout == 3'b100) begin next_state = IDLE; end else begin next_state = CLEAR; end
+      RUNNING: if (keyout == 3'b001) begin next_state = CLEAR; end else begin next_state = RUNNING; end
+      CLEAR: if (keyout == 3'b001) begin next_state = IDLE; end else begin next_state = CLEAR; end
       default: next_state = IDLE;
       endcase
     end
@@ -202,4 +209,19 @@ module ssdec(
     end
   end
 
+endmodule
+
+
+module clock_divider 
+  #(
+      parameter N = 4 // divide by 
+  )
+  (
+    input clk, rst, 
+    input [N - 1: 0] max,
+    output pulse
+  );
+    logic [N - 1:0] count;
+    counter #(.N(N)) divby100 (.clk(clk), .nrst(!rst), .enable(1), .clear(0), .wrap(1), 
+            .max(max), .count(count), .at_max(pulse));
 endmodule
