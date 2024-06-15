@@ -11,12 +11,6 @@ module fsm (
     end
 
     always_comb begin 
-      next_state = state;
-      case(state)
-      IDLE: if (keyout) begin next_state = RUNNING; end else begin next_state = IDLE; end
-      RUNNING: if (keyout) begin next_state = CLEAR; end else begin next_state = RUNNING; end
-      CLEAR: if (keyout) begin next_state = IDLE; end else begin next_state = CLEAR; end
-      default: next_state = IDLE;
-      endcase
+      next_state = keyout;
     end
   endmodule
