@@ -13,7 +13,7 @@ TOP_FILE		:=  stop_watch.sv
 
 # Specify the name of component or sub-module files
 # (do not include the source folder in the name)
-COMPONENT_FILES	:=  fsm.sv, clock_divider.sv, counter.sv
+COMPONENT_FILES	:=  fsm.sv clock_divider.sv counter.sv
 
 # Specify the top level testbench to be simulated
 # (do not include the source folder in the name)
