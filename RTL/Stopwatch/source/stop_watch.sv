@@ -19,7 +19,7 @@ module stop_watch (
     // Write your code here!
     logic out;
     logic strobe;
-    logic strobe1 = (current_mode == RUNNING);
+    logic strobe1 = (mode_o == RUNNING);
     synckey encode (.clk(clk), .rst(!nRst_i), .in(button_i), .out(out), .strobe(strobe), .strobe1(strobe1));
 
     // use fsm to change mode when button is pressed
