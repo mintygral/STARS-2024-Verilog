@@ -17,8 +17,13 @@ module stop_watch (
     output logic [4:0] time_o
 );
     // Write your code here!
+    logic out;
+    logic strobe;
+    logic strobe1 = (current_mode == RUNNING);
+    synckey encode (.clk(clk), .rst(!nRst_i), .in(button_i), .out(out), .strobe(strobe), .strobe1(strobe1));
+
     // use fsm to change mode when button is pressed
-    fsm changemode (.clk(clk), .rst(!nRst_i), .keyout(button_i), .state(mode_o));
+    fsm changemode (.clk(clk), .rst(!nRst_i), .keyout(out), .state(mode_o));
 
     logic clk_second;
     logic [99:0] clkmax = 100;
