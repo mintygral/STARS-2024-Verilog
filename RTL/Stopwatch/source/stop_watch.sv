@@ -3,11 +3,11 @@
     Description: Very simple stop watch
 */
 
-typedef enum logic [2:0] {
-    IDLE = 3'b100,
-    RUNNING = 3'b001,
-    CLEAR = 3'b010
-} state_t;
+// typedef enum logic [2:0] {
+//     IDLE = 3'b100,
+//     RUNNING = 3'b001,
+//     CLEAR = 3'b010
+// } state_t;
 
 
 module stop_watch (
